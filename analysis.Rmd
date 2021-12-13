@@ -3,6 +3,7 @@ title: "VAERS Analysis"
 author: "Skeptical Waves"
 date: "2021-12-12"
 output: github_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +22,7 @@ library(tidyverse)
 library(ggplot2)
 library(magrittr)
 library(summarytools)
+library(kableExtra)
 ```
 
 ### Load VAERS Events
@@ -127,8 +129,14 @@ ggplot(
 ### Top 50 Lots with Adverse Events
 
 ```{r report frequency}
-ggplot(VAERSCOVID19 %>% drop_na(VAX_LOT) %>% group_by(VAX_MANU) %>% count(VAX_LOT) %>% ungroup() %>% slice_max(n, n = 50),
-       aes(y = n, x = reorder(VAX_LOT, -n) , fill=VAX_MANU)) +
+VAERSCOVID19_LOT_FREQ = VAERSCOVID19 %>% drop_na(VAX_LOT) %>% group_by(VAX_MANU) %>% count(VAX_LOT) %>% ungroup() %>% slice_max(n, n = 50)
+ggplot(VAERSCOVID19_LOT_FREQ, aes(y = n, x = reorder(VAX_LOT, -n) , fill=VAX_MANU)) +
   geom_bar(stat = 'identity') +
   guides(x=guide_axis(angle = 45)) + xlab("Lot ID") + ylab("Number of Adverse Events")
+```
+
+#### Table of top 50 lots
+
+```{r table, results='asis'}
+knitr::kable(VAERSCOVID19_LOT_FREQ)
 ```
